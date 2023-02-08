@@ -10,4 +10,4 @@ branches:
     prefix: issues/
     
 autoCloseIssue: true
-# defaultBranch: 'dev'
+defaultBranch: 'dev'
