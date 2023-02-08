@@ -1,0 +1,4 @@
+.DS_store
+.venv
+poetry.lock
+__pycache__
