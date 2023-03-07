@@ -7,4 +7,3 @@ app = FastAPI()
 def index():
     return {'msg':'helloworld'}
 
-
