@@ -1,56 +1,62 @@
-from typing import Union
+from typing import Union, Optional
+from fastapi import HTTPException, status
 
 from app.models.module import User
+from app.core.auth import pwd_context
+from app.repositories.module import UserRepository
+from datetime import timedelta, utcnow
 
+from jose import jwt
 
-def authenticate_user(username: str, password: str, db):
-    userinfo:Union[User,None] = get_userinfo(username,db)
+from app.core.const import ACCESS_TOKEN_EXPIRE_MINUTES
 
-    if not userinfo:
-        return False
+import os
 
-    db_password = userinfo.hashpw
-    if not verify_password(password, db_password):
-        return False
-    return userinfo
 
 class LoginService:
-    def __init__(self) -> None:
-        ...
+    def __init__(self, user_repository:UserRepository) -> None:
+        self.user_repository = user_repository
 
-    def authenticate_user(self, username: str, password: str, db):
-        userinfo:Union[User,None] = get_userinfo(username,db)
+    def verify_password(self, input_password, db_password):
+        return pwd_context.verify(input_password, db_password)
+        # return input_password == db_password
+
+    def authenticate_user(self, username: str, password: str, user_repository:UserRepository):
+        userinfo:Union[User,None] = user_repository.find(username)
 
         if not userinfo:
             return False
 
         db_password = userinfo.hashpw
-        if not verify_password(password, db_password):
+        if not self.verify_password(password, db_password):
             return False
         return userinfo
-
-    def get_userinfo(self, username: str,db): # username으로 조회할지, primary_key인 id로 조회할지...
-        try:
-            user_info:User = db.query(User).filter(User.username == username).first()
-            return user_info
-        
-        except Exception as e:
-            print('db에서 유저를 조회할 수 없습니다')
-            print(e)
-            return None
-
-
-    user:Union[User,None] = authenticate_user(username = form_data.username, password = form_data.password, db=db)
-    if not user:
-            raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail = 'Incorrect username or password',
-            headers={'WWW-Authenticate': 'Bearer'}
-            )
     
-    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    access_token = create_access_token(
-        data={'sub' : user.username, 'user_id' : user.id},
-        expires_delta=access_token_expires
-    )
-    return {'access_token': access_token, 'token_type': 'Bearer'}
+    def create_access_token(self, data: dict, expires_delta: Optional[timedelta] = None):
+        to_encode = data.copy()
+        if expires_delta:
+            expire = utcnow() + expires_delta
+        else:
+            expire = utcnow()
+        to_encode.update({'exp': expire})
+        encoded_jwt = jwt.encode(to_encode, os.environ.get("SECRET_KEY"), algorithm=os.environ.get("ALGORITHM"))
+        return encoded_jwt
+    
+    def login(self,form_data):
+        user:Union[User,None] = self.authenticate_user(
+            username = form_data.username, 
+            password = form_data.password, user_repository=self.user_repository)
+        
+        if not user:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail = 'Incorrect username or password',
+                headers={'WWW-Authenticate': 'Bearer'}
+            )
+
+        access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+        access_token = self.create_access_token(
+            data={'sub' : self.user.username, 'user_id' : self.user.id},
+            expires_delta=access_token_expires
+        )
+        return {'access_token': access_token, 'token_type': 'Bearer'}

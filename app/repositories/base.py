@@ -7,10 +7,10 @@ class BaseRepository(ABC):
     def findAll(self):pass
 
     @abstractmethod
-    def find(self, arg:Dict):pass
+    def find(self):pass
 
-    # @abstractmethod
-    # def save(self):pass
+    @abstractmethod
+    def save(self):pass
 
     # @abstractmethod
     # def saveAll(self):pass

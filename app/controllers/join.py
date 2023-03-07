@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends
+from fastapi import UploadFile,Form
 from typing import Optional
 
 from dependency_injector.wiring import inject, Provide
@@ -7,19 +8,19 @@ from app.container import Container
 
 from app.schemas.module import *
 
-from app.services.module import LoginService
+from app.services.module import JoinService
 
 
 router = APIRouter(
-    prefix="/login",
-    tags=['login'],
+    prefix="/join",
+    tags=['join'],
     responses={404: {"description": "Not found"},'403':{"description":"Not Authentication"}},
 )
 
 @router.post('/',response_model=Token)
 @inject
-async def login_with_access_toke(
-    form_data: Login,
-    login_service:LoginService = Depends(Provide[Container.login_service])):
+async def join(
+    file: UploadFile, username: str = Form(), password: str = Form(), lang:str=Form(), 
+    join_service:JoinService = Depends(Provide[Container.join_service])):
 
-    login_service.login(form_data=form_data)
+    join_service.join(file,lang,password,username)
