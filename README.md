@@ -4,10 +4,13 @@
 
 ### 개발용
 
-
 ### 개발용
 
 - pyenv 설치 되어 있어야됨
 - poetry install
 
 [참조](https://velog.io/@city7310/series/백엔드가-이정도는-해줘야-함)
+
+### ERD
+
+[링크](https://www.erdcloud.com/d/4xawuNZA6AkpBtnsA)

@@ -1,2 +1,3 @@
 check-pre-p:
-	pytest tests/ --cache-clear -vv --color=yes
+	cd ./tests & pytest --cache-clear -vv --color=yes
+	rm -r .pytest_cache

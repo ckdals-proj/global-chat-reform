@@ -6,3 +6,5 @@ app = FastAPI()
 @app.get('/')
 def index():
     return {'msg':'helloworld'}
+
+
