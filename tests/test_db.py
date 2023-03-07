@@ -1,6 +1,3 @@
-from app.main import app
-from app.db.database import Session, DataBase
-
 from app.container import Container
 
 def test_scoped_session():
