@@ -3,3 +3,5 @@
 
 
 [참조](https://velog.io/@city7310/series/백엔드가-이정도는-해줘야-함)
+
+[참조](https://github.com/translation-team)
